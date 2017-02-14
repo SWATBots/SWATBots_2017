@@ -1,6 +1,11 @@
 package org.usfirst.frc.team5015.robot;
 
-import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Spark;
+import com.ctre.CANTalon;
+import com.ctre.CANTalon.TalonControlMode;
+
+import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -12,14 +17,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends IterativeRobot {
+	AnalogGyro drive_gyro = new AnalogGyro(0);
+	Encoder drive_encoder = new Encoder(0, 1);
+	Talon left_drive = new Talon(0);
+	Talon right_drive = new Talon(1);
+	RobotDrive drivetrain = new RobotDrive(left_drive, right_drive);
+	SWATDrive drive_system = new SWATDrive(drivetrain, drive_gyro, drive_encoder);
 	
+	Joystick drive_stick = new Joystick(0);
+	Joystick shooter_stick = new Joystick(1);
+	
+	Spark climbing_motor = new Spark(2);
+	
+	CANTalon shooter_motor = new CANTalon(1);
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
-
+		shooter_motor.changeControlMode(TalonControlMode.Voltage);
+		shooter_motor.set(0.0);
 	}
 
 	/**
@@ -51,6 +69,21 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		drive_system.controlDrive(drive_stick.getRawAxis(2), drive_stick.getRawAxis(1));
+		
+		if(shooter_stick.getTrigger()){
+			shooter_motor.set(0.2);
+		}
+		else{
+			shooter_motor.set(0.0);
+		}
+		
+		if(shooter_stick.getBumper(Hand.kRight)){
+			climbing_motor.set(0.3);
+		}
+		else{
+			climbing_motor.set(0.0);
+		}
 	}
 
 	/**
