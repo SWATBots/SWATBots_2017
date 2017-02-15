@@ -36,7 +36,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void robotInit() {
-		shooter_motor.changeControlMode(TalonControlMode.Voltage);
+		shooter_motor.changeControlMode(TalonControlMode.PercentVbus);
+		shooter_motor.enableBrakeMode(false);
 		shooter_motor.set(0.0);
 	}
 
@@ -69,17 +70,17 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		drive_system.controlDrive(drive_stick.getRawAxis(2), drive_stick.getRawAxis(1));
+		drive_system.controlDrive(drive_stick.getRawAxis(1), drive_stick.getRawAxis(2));
 		
-		if(shooter_stick.getTrigger()){
-			shooter_motor.set(0.2);
+		if(shooter_stick.getRawButton(8)){
+			shooter_motor.set(-0.4);
 		}
 		else{
 			shooter_motor.set(0.0);
 		}
 		
-		if(shooter_stick.getBumper(Hand.kRight)){
-			climbing_motor.set(0.3);
+		if(shooter_stick.getRawButton(6)){
+			climbing_motor.set(-1.0);
 		}
 		else{
 			climbing_motor.set(0.0);

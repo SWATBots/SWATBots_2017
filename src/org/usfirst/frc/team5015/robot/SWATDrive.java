@@ -26,7 +26,7 @@ public class SWATDrive {
 
     public void controlDrive(double moveValue, double rotateValue) {
 
-        driveTrain.arcadeDrive(moveValue * maxSpeed, -rotateValue * maxSpeed);
+        driveTrain.arcadeDrive(-moveValue * maxSpeed, -rotateValue * maxSpeed);
     }
     
     public void stopDrive()
