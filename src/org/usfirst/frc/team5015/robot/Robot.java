@@ -1,7 +1,10 @@
 package org.usfirst.frc.team5015.robot;
 
-import edu.wpi.first.wpilibj.Spark;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
 import com.ctre.CANTalon;
+import com.ctre.CANTalon.FeedbackDevice;
 import com.ctre.CANTalon.TalonControlMode;
 
 import edu.wpi.first.wpilibj.*;
@@ -36,7 +39,10 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void robotInit() {
+		CameraServer.getInstance().startAutomaticCapture();
+		drive_gyro.calibrate();
 		shooter_motor.changeControlMode(TalonControlMode.PercentVbus);
+		shooter_motor.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
 		shooter_motor.enableBrakeMode(false);
 		shooter_motor.set(0.0);
 	}
@@ -73,7 +79,7 @@ public class Robot extends IterativeRobot {
 		drive_system.controlDrive(drive_stick.getRawAxis(1), drive_stick.getRawAxis(2));
 		
 		if(shooter_stick.getRawButton(8)){
-			shooter_motor.set(-0.4);
+			shooter_motor.set(-0.45);
 		}
 		else{
 			shooter_motor.set(0.0);
@@ -85,6 +91,9 @@ public class Robot extends IterativeRobot {
 		else{
 			climbing_motor.set(0.0);
 		}
+		
+		SmartDashboard.putNumber("Shooter RPM: ", shooter_motor.getSpeed());
+		SmartDashboard.putNumber("Shooter Velocity: ", shooter_motor.getEncVelocity());
 	}
 
 	/**
