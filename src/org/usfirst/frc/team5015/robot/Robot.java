@@ -78,21 +78,23 @@ public class Robot extends IterativeRobot {
 	Path path = Paths.get("/U/output.csv");
 	public String log_data = "";
 	private boolean was_pressed = false;
-	private int line_count = 1;
+	private int line_count = 0;
 	
 	@Override
 	public void teleopPeriodic() {
 		drive_system.controlDrive(drive_stick.getRawAxis(1), drive_stick.getRawAxis(2));
 		
 		if(shooter_stick.getRawButton(8)){
-			shooter_motor.set(-0.45);
+			shooter_motor.set(-0.40);
 			was_pressed = true;
-			log_data += Integer.toString(shooter_motor.getEncVelocity());
+			log_data += Integer.toString(shooter_motor.getEncVelocity())+",";
+			System.out.print(Integer.toString(shooter_motor.getEncVelocity())+",");
 		}
 		else{
 			if(was_pressed){
+				System.out.println("");
 				line_count++;
-				log_data += "\n";
+				log_data += "\n\n";
 				was_pressed = false;
 			}
 			shooter_motor.set(0.0);
@@ -106,12 +108,14 @@ public class Robot extends IterativeRobot {
 		}
 		
 		SmartDashboard.putNumber("Log line count", line_count);
-		SmartDashboard.putNumber("Shooter RPM: ", shooter_motor.getSpeed());
 		SmartDashboard.putNumber("Shooter Velocity: ", shooter_motor.getEncVelocity());
 	}
+	
 
 	public void disabledInit()
 	{
+		System.out.println("\n\n");
+		System.out.println(log_data);
 		try {
 			Files.write(path, log_data.getBytes());
 		} catch (IOException e) {
