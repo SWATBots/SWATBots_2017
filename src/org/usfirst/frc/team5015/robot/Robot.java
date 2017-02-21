@@ -79,19 +79,47 @@ public class Robot extends IterativeRobot {
 	public String log_data = "";
 	private boolean was_pressed = false;
 	private int line_count = 0;
+	private double S=13400, G=0.005, Y=1, e, d=1, b=2*0.40-1;
+	//0.40 is approximately the correct percent power for the shooter.
+	//The TBH algorithm implemented using https://www.chiefdelphi.com/forums/showpost.php?p=1539758&postcount=2
+	
+	private void initialize_variables() {
+		Y=1;
+		d=1;
+		b=2*M-1;
+	}
+	
+	public void teleopInit() {
+		initialize_variables();
+	}
 	
 	@Override
 	public void teleopPeriodic() {
 		drive_system.controlDrive(drive_stick.getRawAxis(1), drive_stick.getRawAxis(2));
 		
 		if(shooter_stick.getRawButton(8)){
-			shooter_motor.set(-0.40);
+			/*shooter_motor.set(-0.40);*/
+			e = S - shooter_motor.getEncVelocity();
+			Y += G*e;
+			if(Y>1) {
+				Y = 1;
+			}
+			else if (Y<0) {
+				Y = 0;
+			}
+			if (Math.signum(e) != Math.signum(d)){
+				Y = b = 0.5*(Y+b);
+				d = e;
+			}
+			shooter_motor.set(-Y);
+			
 			was_pressed = true;
 			log_data += Integer.toString(shooter_motor.getEncVelocity())+",";
 			System.out.print(Integer.toString(shooter_motor.getEncVelocity())+",");
 		}
 		else{
 			if(was_pressed){
+				initialize_variables();
 				System.out.println("");
 				line_count++;
 				log_data += "\n\n";
