@@ -79,12 +79,13 @@ public class Robot extends IterativeRobot {
 	public String log_data = "";
 	private boolean was_pressed = false;
 	private int line_count = 0;
-	private double S=13400, G=0.005, Y=1, e, d=1, b=2*0.40-1;
+	private double M = 0.40;
 	//0.40 is approximately the correct percent power for the shooter.
+	private double S=13400, G=0.0000045, Y=0.5, e, d=1, b=2*M-1;
 	//The TBH algorithm implemented using https://www.chiefdelphi.com/forums/showpost.php?p=1539758&postcount=2
 	
 	private void initialize_variables() {
-		Y=1;
+		Y=0.5;
 		d=1;
 		b=2*M-1;
 	}
