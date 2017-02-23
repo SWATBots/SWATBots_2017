@@ -46,7 +46,7 @@ public class SWATDrive {
          * Drive forward using a gyro and a proportional controller to go
          * straight.
          */
-        this.driveTrain.arcadeDrive(speed, 0.2 * driveGyro.getAngle());
+        this.driveTrain.arcadeDrive(speed, 0.1 * driveGyro.getAngle());
     }
 
     double distanceError;
