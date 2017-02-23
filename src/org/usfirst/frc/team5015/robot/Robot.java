@@ -10,6 +10,7 @@ import com.ctre.CANTalon.FeedbackDevice;
 import com.ctre.CANTalon.TalonControlMode;
 
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends IterativeRobot {
+	SendableChooser<Auto_Mode> auto_selector = new SendableChooser<>();	
 	AnalogGyro drive_gyro = new AnalogGyro(0);
 	Encoder drive_encoder = new Encoder(0, 1);
 	Talon left_drive = new Talon(0); 
@@ -33,6 +35,7 @@ public class Robot extends IterativeRobot {
 	Spark climbing_motor = new Spark(2);
 	
 	CANTalon shooter_motor = new CANTalon(1);
+	
 	/**   b
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -48,23 +51,32 @@ public class Robot extends IterativeRobot {
 		shooter_motor.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
 		shooter_motor.enableBrakeMode(false);
 		shooter_motor.set(0.0);
-		
         drive_encoder.setDistancePerPulse(Math.PI*6.0/250.0);
+        
+        auto_selector.addDefault(center_gear.get_name(), center_gear);
+        auto_selector.addObject(left_gear.get_name(), left_gear);
+        auto_selector.addObject(right_gear.get_name(), right_gear);
+        auto_selector.addObject(nothing_auto.get_name(), nothing_auto);
 	}
 
 	boolean next_step = false;
 	int step_number = 0;
 	Timer auto_timer = new Timer();
+	Center_Peg_Auto center_gear = new Center_Peg_Auto("Center Gear", drive_system, auto_timer);
+	Left_Peg_Auto left_gear = new Left_Peg_Auto("Left Gear", drive_system, auto_timer);
+	Right_Peg_Auto right_gear = new Right_Peg_Auto("Right Gear", drive_system, auto_timer);
+	Auto_Mode nothing_auto = new Auto_Mode("Do Nothing", drive_system, auto_timer);
+	Auto_Mode selected_auto;
+	
 	
 	@Override
 	public void autonomousInit() {
-		next_step = false;
-		step_number = 0;
-		auto_timer.reset();
-		auto_timer.start();
-		drive_gyro.reset();
-		drive_system.distanceEncoder.reset();
+		center_gear.init_auto();
+		left_gear.init_auto();
+		right_gear.init_auto();
 		SmartDashboard.putBoolean("Finished", false);
+		selected_auto = auto_selector.getSelected();
+		selected_auto.init_auto();
 	}
 
 	/**
@@ -73,89 +85,11 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousPeriodic() {
 		SmartDashboard.putNumber("Encoder", drive_system.distanceEncoder.getDistance());
-		if(next_step){
-			step_number += 1;
-			drive_system.resetControllers();
-			next_step = false;
-			drive_gyro.reset();
-		}
-
-		//Left peg auto
-				/*switch(step_number)
-				{
-				case 0:
-		            next_step = drive_system.gyroDistanceDrive(133.0, 0.45);	
-				break;
-				
-				
-				case 1:
-				    next_step = drive_system.gyroTurn(55, 0.4);
-		            auto_timer.reset();
-				break;
-				
-				case 2:
-					next_step = true;
-					drive_system.stopDrive();
-				break;
-				
-				case 3:
-				    drive_system.gyroDrive(0.5);
-				    if(auto_timer.get() >= 1.5){
-				    	next_step = true;
-				    }
-				break;
-				 
-				default:
-					SmartDashboard.putBoolean("Finished", true);
-					drive_system.stopDrive();
-				break;
-				}*/
-				
-		//Right peg auto
-		switch(step_number)
-		{
-		case 0:
-            next_step = drive_system.gyroDistanceDrive(129.0, 0.45);	
-		break;
 		
-		
-		case 1:
-		    next_step = drive_system.gyroTurn(-45.0, 0.4);
-            auto_timer.reset();
-		break;
-		
-		case 2:
-			next_step = true;
-			drive_system.stopDrive();
-		break;
-		
-		case 3:
-		    drive_system.gyroDrive(0.5);
-		    if(auto_timer.get() >= 0.7){
-		    	next_step = true;
-		    }
-		break;
-		 
-		default:
-			SmartDashboard.putBoolean("Finished", true);
-			drive_system.stopDrive();
-		break;
-		}
-		
-		//Middle peg auto
-		/*switch(step_number)
-		{
-		case 0:
-            next_step = drive_system.gyroDistanceDrive(111.0, 0.45);	
-		break;
-		 
-		default:
-			SmartDashboard.putBoolean("Finished", true);
-			drive_system.stopDrive();
-		break;
-		}*/
-	
-		
+		SmartDashboard.putBoolean("Finished", selected_auto.periodic_auto());
+		//SmartDashboard.putBoolean("Finished", center_gear.periodic_auto());
+		//SmartDashboard.putBoolean("Finished", left_gear.periodic_auto());
+		//SmartDashboard.putBoolean("Finished", right_gear.periodic_auto());
 	}
 
 
@@ -243,6 +177,12 @@ public class Robot extends IterativeRobot {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void disabledPeriodic()
+	{
+		selected_auto = auto_selector.getSelected();
+		SmartDashboard.putString("Selected Auto", selected_auto.get_name());
 	}
 	
 	/**
