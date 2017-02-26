@@ -121,7 +121,7 @@ public class Robot extends IterativeRobot {
 		else{
 			drive_system.setMaxSpeed(0.75);
 		}
-		drive_system.setMaxSpeed(0.75);
+
 		drive_system.controlDrive(drive_stick.getRawAxis(1), drive_stick.getRawAxis(2)+0.2);
 		
 		if(shooter_stick.getRawButton(8)){
