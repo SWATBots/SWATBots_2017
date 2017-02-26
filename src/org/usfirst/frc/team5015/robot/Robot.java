@@ -116,9 +116,15 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		if(drive_stick.getRawButton(8))
 		{
+			//Fast button on right trigger.
 			drive_system.setMaxSpeed(1.0);
 		}
-		else{
+		else if(drive_stick.getRawButton(6)){
+			//Slow button on right bumper.
+			drive_system.setMaxSpeed(0.5);
+		}
+		else {
+			//If neither slow nor fast button are pressed, go at normal speed.
 			drive_system.setMaxSpeed(0.75);
 		}
 
