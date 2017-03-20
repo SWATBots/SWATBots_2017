@@ -30,7 +30,10 @@ public class Center_Peg_Auto extends Auto_Mode {
 			switch(step_number)
 				{
 				case 0:
-		            next_step = drive_system.gyroDistanceDrive(111.0, 0.45);	
+		            next_step = drive_system.gyroDistanceDrive(111.0, 0.45);
+		            if(auto_timer.get() > 7.5){
+		            	next_step = true;
+		            }
 				break;
 				 
 				default:

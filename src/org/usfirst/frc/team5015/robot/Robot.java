@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 public class Robot extends IterativeRobot {
+	double max_climb_power = 1.0;
+	
 	SendableChooser<Auto_Mode> auto_selector = new SendableChooser<>();	
 	AnalogGyro drive_gyro = new AnalogGyro(0);
 	Encoder drive_encoder = new Encoder(0, 1);
@@ -30,7 +32,6 @@ public class Robot extends IterativeRobot {
 	SWATDrive drive_system = new SWATDrive(drivetrain, drive_gyro, drive_encoder);
 	
 	Joystick drive_stick = new Joystick(0);
-	Joystick shooter_stick = new Joystick(1);
 	
 	Spark climbing_motor = new Spark(2);
 	
@@ -57,6 +58,8 @@ public class Robot extends IterativeRobot {
         auto_selector.addObject(left_gear.get_name(), left_gear);
         auto_selector.addObject(right_gear.get_name(), right_gear);
         auto_selector.addObject(nothing_auto.get_name(), nothing_auto);
+        
+    	SmartDashboard.putData("Auto Selector", auto_selector);
 	}
 
 	boolean next_step = false;
@@ -114,23 +117,27 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void teleopPeriodic() {
-		if(drive_stick.getRawButton(8))
+		SmartDashboard.putNumber("Encoder", drive_system.distanceEncoder.getDistance());
+		if(drive_stick.getRawButton(5))
 		{
 			//Fast button on right trigger.
 			drive_system.setMaxSpeed(1.0);
+			max_climb_power = 1.0;
 		}
-		else if(drive_stick.getRawButton(6)){
+		else if(drive_stick.getRawButton(7)){
 			//Slow button on right bumper.
 			drive_system.setMaxSpeed(0.5);
+			max_climb_power = 0.5;
 		}
 		else {
 			//If neither slow nor fast button are pressed, go at normal speed.
 			drive_system.setMaxSpeed(0.75);
+			max_climb_power = 1.0;
 		}
 
 		drive_system.controlDrive(drive_stick.getRawAxis(1), drive_stick.getRawAxis(2)+0.2);
 		
-		if(shooter_stick.getRawButton(8)){
+		if(drive_stick.getRawButton(8)){
 			/*shooter_motor.set(-0.40);*/
 			e = S - shooter_motor.getEncVelocity();
 			Y += G*e;
@@ -161,8 +168,8 @@ public class Robot extends IterativeRobot {
 			shooter_motor.set(0.0);
 		}
 		
-		if(shooter_stick.getRawButton(6)){
-			climbing_motor.set(-1.0);
+		if(drive_stick.getRawButton(8)){
+			climbing_motor.set(-1.0*max_climb_power);
 		}
 		else{
 			climbing_motor.set(0.0);
@@ -183,10 +190,14 @@ public class Robot extends IterativeRobot {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+    	SmartDashboard.putData("Auto Selector", auto_selector);
+
 	}
 	
 	public void disabledPeriodic()
 	{
+    	//SmartDashboard.putData("Auto Selector", auto_selector);
 		selected_auto = auto_selector.getSelected();
 		SmartDashboard.putString("Selected Auto", selected_auto.get_name());
 	}
