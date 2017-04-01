@@ -197,7 +197,7 @@ public class Robot extends IterativeRobot {
 	
 	public void disabledPeriodic()
 	{
-    	//SmartDashboard.putData("Auto Selector", auto_selector);
+    	SmartDashboard.putData("Auto Selector", auto_selector);
 		selected_auto = auto_selector.getSelected();
 		SmartDashboard.putString("Selected Auto", selected_auto.get_name());
 	}
